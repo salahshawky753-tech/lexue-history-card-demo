@@ -1,1 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>乐学成长卡 - 彩虹是怎么形成的</title>
+<style>
+    body {
+        margin:0;
+        font-family:"Microsoft YaHei",sans-serif;
+        background:#f0f9ff;
+    }
+    header {
+        background:#66ccff;
+        padding:10px;
+        position:sticky;
+        top:0;
+        z-index:10;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+        font-size:20px;
+        color:#fff;
+    }
+    section {
+        padding:10px;
+        max-width:800px;
+        margin:0 auto;
+    }
+    .card {
+        background:white;
+        border-radius:12px;
+        box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        padding:15px;
+        margin-bottom:15px;
+    }
+    h2 {
+        margin-top:0;
+        color:#444;
+    }
+    .btn {
+        background:#66ccff;
+        color:white;
+        border:none;
+        border-radius:6px;
+        padding:6px 10px;
+        cursor:pointer;
+        font-size:14px;
+    }
+    .btn:disabled {background:gray;}
+    .progress {
+        height:20px;
+        background:#eee;
+        border-radius:10px;
+        overflow:hidden;
+    }
+    .progress-bar {
+        height:100%;
+        background:#66ccff;
+        text-align:center;
+        color:white;
+        line-height:20px;
+        width:0;
+    }
+    .rainbow {
+        width:100%;
+        height:150px;
+        background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+        border-radius:0 0 75px 75px;
+        margin-bottom:10px;
+    }
+</style>
+</head>
+<body>
 
+<header>乐学成长卡：彩虹是怎么形成的</header>
+
+<section>
+    <!-- 知识阅读 -->
+    <div class="card">
+        <h2>知识阅读</h2>
+        <p id="p1">彩虹是光经过雨滴折射、反射和再次折射形成的美丽光谱。</p>
+        <button class="btn" onclick="readText('p1')">🔊朗读</button>
+        <p id="p2"> 彩虹一般出现在雨后或瀑布附近，天空有阳光时更容易看到。</p>
+        <button class="btn" onclick="readText('p2')">🔊朗读</button>
+    </div>
+
+    <!-- 知识动画 -->
+    <div class="card">
+        <h2>彩虹动画</h2>
+        <div class="rainbow"></div>
+        <p>七种颜色依次为：红、橙、黄、绿、蓝、靛、紫。</p>
+    </div>
+
+    <!-- 小游戏 -->
+    <div class="card">
+        <h2>小游戏：排列彩虹颜色</h2>
+        <p>把颜色按正确顺序排好（只能加分一次）</p>
+        <div id="colorBlocks">
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="red" style="background:red">红</button>
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="orange" style="background:orange">橙</button>
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="yellow" style="background:yellow;color:#333">黄</button>
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="green" style="background:green">绿</button>
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="blue" style="background:blue">蓝</button>
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="indigo" style="background:indigo">靛</button>
+            <button class="btn" draggable="true" ondragstart="drag(event)" id="violet" style="background:violet">紫</button>
+        </div>
+        <div id="dropZone" ondrop="drop(event)" ondragover="allowDrop(event)" style="margin-top:10px;padding:10px;border:2px dashed #aaa;min-height:60px;">
+            拖拽颜色到这里按顺序排列
+        </div>
+        <p id="gameStatus"></p>
+    </div>
+
+    <!-- 知识问答 -->
+    <div class="card quiz">
+        <h2>知识问答</h2>
+        <div>
+            <p>1. 彩虹是光经过雨滴两次折射形成的，对吗？</p>
+            <label><input type="radio" name="q1" value="true">对</label>
+            <label><input type="radio" name="q1" value="false">错</label>
+        </div>
+        <div>
+            <p>2. 彩虹的七种颜色是红橙黄绿蓝靛紫，对吗？</p>
+            <label><input type="radio" name="q2" value="true">对</label>
+            <label><input type="radio" name="q2" value="false">错</label>
+        </div>
+        <button class="btn" onclick="checkQuiz()">提交答案</button>
+        <p id="quizResult"></p>
+    </div>
+
+    <!-- 成长值 -->
+    <div class="card">
+        <h2>我的成长值</h2>
+        <div class="progress">
+            <div id="progressBar" class="progress-bar">0 / 10</div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const CONFIG = { maxPoints: 10, gamePoints: 4, quizPoints: 3};
+    let synth = window.speechSynthesis;
+    let points = 0, quizCompleted = false, gameCompleted = false;
+    let order = [];
+
+    function readText(id){
+        let text = document.getElementById(id).innerText;
+        let utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-CN';
+        synth.speak(utter);
+    }
+
+    function addPoints(score){
+        points += score;
+        if(points > CONFIG.maxPoints) points = CONFIG.maxPoints;
+        let bar = document.getElementById('progressBar');
+        bar.style.width = (points / CONFIG.maxPoints * 100) + '%';
+        bar.innerText = `${points} / ${CONFIG.maxPoints}`;
+    }
+
+    // 拖拽小游戏
+    function allowDrop(ev){ ev.preventDefault(); }
+    function drag(ev){ ev.dataTransfer.setData("text", ev.target.id); }
+    function drop(ev){
+        ev.preventDefault();
+        if(gameCompleted) return;
+        let data = ev.dataTransfer.getData("text");
+        let block = document.getElementById(data);
+        ev.target.appendChild(block);
+        order.push(data);
+        if(order.length === 7){
+            let correct = ["red","orange","yellow","green","blue","indigo","violet"];
+            if(JSON.stringify(order) === JSON.stringify(correct)){
+                document.getElementById('gameStatus').innerText = `✅ 正确！获得${CONFIG.gamePoints}分`;
+                addPoints(CONFIG.gamePoints);
+            } else {
+                document.getElementById('gameStatus').innerText = "❌ 顺序不对，请刷新重试";
+            }
+            gameCompleted = true;
+        }
+    }
+
+    // 答题
+    function checkQuiz(){
+        if(quizCompleted) return;
+        let score = 0;
+        let q1 = document.querySelector('input[name="q1"]:checked');
+        let q2 = document.querySelector('input[name="q2"]:checked');
+        if(!q1 || !q2){ alert("请答完所有题目"); return; }
+        if(q1.value === 'true') score += CONFIG.quizPoints;
+        if(q2.value === 'true') score += CONFIG.quizPoints;
+        addPoints(score);
+        quizCompleted = true;
+        document.getElementById('quizResult').innerText = `答题得分 ${score} 分`;
+    }
+</script>
+</body>
+</html>
