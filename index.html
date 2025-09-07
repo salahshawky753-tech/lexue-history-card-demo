@@ -2,153 +2,191 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>乐学成长卡 - 历史文化篇</title>
 <style>
-  :root {
-    --bg-color: #FDF6E3;
-    --text-color: #333;
-    --accent-color: #B58900;
-    --font-size: 16px;
-  }
-  body {
-    margin:0;
-    font-family: "Microsoft YaHei", sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-size: var(--font-size);
-  }
-  header {
-    background-image: url('https://cdn.jsdelivr.net/gh/lexue-tz/assets/history-bg.jpg'); /* 改成国内可用 CDN 链接 */
-    background-size: cover;
-    background-position:center;
-    color: #fff;
-    padding: 20px;
-    text-align: center;
-  }
-  section {
-    padding: 15px;
-    line-height: 1.6;
-  }
-  .controls { display: flex; gap:10px; margin-bottom:10px;}
-  button { padding: 6px 12px; font-size: 1em; cursor:pointer; }
-  .game, .quiz {margin-top:20px; padding:10px; border:1px solid #ccc; border-radius:8px;}
-  .quiz input {margin-right:5px;}
-  .highlight {color: var(--accent-color); font-weight: bold;}
+    body {
+        margin:0;
+        font-family:"Microsoft YaHei",sans-serif;
+        background:#f7f7f7;
+    }
+    header {
+        background:#ffcc66;
+        padding:10px;
+        position:sticky;
+        top:0;
+        z-index:10;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;
+        font-size:20px;
+        color:#333;
+    }
+    section {
+        padding:10px;
+        max-width:800px;
+        margin:0 auto;
+    }
+    .card {
+        background:white;
+        border-radius:12px;
+        box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        padding:15px;
+        margin-bottom:15px;
+    }
+    h2 {
+        margin-top:0;
+        color:#444;
+    }
+    .btn {
+        background:#ff9933;
+        color:white;
+        border:none;
+        border-radius:6px;
+        padding:8px 12px;
+        cursor:pointer;
+        font-size:16px;
+    }
+    .btn:disabled {
+        background:gray;
+    }
+    .quiz label {
+        display:block;
+        margin:6px 0;
+    }
+    .progress {
+        height:20px;
+        background:#eee;
+        border-radius:10px;
+        overflow:hidden;
+    }
+    .progress-bar {
+        height:100%;
+        background:#ff9933;
+        text-align:center;
+        color:white;
+        line-height:20px;
+        width:0;
+    }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>乐学成长卡：历史文化篇</h1>
-  <p>小学中年级</p>
-</header>
+<header>乐学成长卡：历史文化篇</header>
 
 <section>
-  <div class="controls">
-    <button onclick="changeFontSize(1)">A+</button>
-    <button onclick="changeFontSize(-1)">A-</button>
-    <button onclick="toggleVoice()">🔊 语音</button>
-  </div>
-  
-  <h2>知识要点</h2>
-  <div>
-    <p id="para1">【朗读1】泰州自古为水陆要冲，素有“汉唐名郡”之称。</p>
-    <button onclick="readText('para1')">朗读段落1</button>
-  </div>
-  <div>
-    <p id="para2">【朗读2】古运河穿城而过，见证了数百年的商贸繁荣与文化交流。</p>
-    <button onclick="readText('para2')">朗读段落2</button>
-  </div>
+    <!-- 知识阅读 -->
+    <div class="card">
+        <h2>知识阅读</h2>
+        <p id="p1">泰州自古为水陆要冲，素有“汉唐名郡”之称。</p>
+        <button class="btn" onclick="readText('p1')">🔊朗读</button>
+        <p id="p2">古运河穿城而过，见证了数百年的商贸繁荣与文化交流。</p>
+        <button class="btn" onclick="readText('p2')">🔊朗读</button>
+    </div>
 
-  <h2>动画展示</h2>
-  <svg width="100%" height="120">
-    <circle id="boat" cx="0" cy="60" r="20" fill="#B58900" onclick="clickBoat()"/>
-    抱歉，您的浏览器不支持SVG。
-  </svg>
+    <!-- 知识动画 -->
+    <div class="card">
+        <h2>动画展示</h2>
+        <svg width="100%" height="120">
+            <circle id="boat" cx="20" cy="60" r="20" fill="#B58900" onclick="clickBoat()" />
+            抱歉，浏览器不支持SVG
+        </svg>
+        <p id="gameStatus">任务：点击小船 3 次（只能加分一次）</p>
+        <button class="btn" onclick="resetGame()">重置小游戏</button>
+    </div>
 
-  <div class="game">
-    <h3>小游戏：找不同</h3>
-    <p>点击黄金圈，让它变蓝，找到 3 次即可完成任务（得 4 分，限一次）。</p>
-    <p id="gameStatus">当前已找到：0 / 3</p>
-  </div>
+    <!-- 知识问答 -->
+    <div class="card quiz">
+        <h2>知识问答</h2>
+        <div>
+            <p>1. 泰州有“汉唐名郡”之称，对吗？</p>
+            <label><input type="radio" name="q1" value="true">对</label>
+            <label><input type="radio" name="q1" value="false">错</label>
+        </div>
+        <div>
+            <p>2. 古运河是泰州历史和文化的重要见证，对吗？</p>
+            <label><input type="radio" name="q2" value="true">对</label>
+            <label><input type="radio" name="q2" value="false">错</label>
+        </div>
+        <button class="btn" onclick="checkQuiz()">提交答案</button>
+        <p id="quizResult"></p>
+    </div>
 
-  <div class="quiz">
-    <h3>知识问答（每题 3 分，共 6 分）</h3>
-    <p>1. 泰州有“汉唐名郡”之称，对吗？</p>
-    <label><input type="radio" name="q1" value="true">对</label>
-    <label><input type="radio" name="q1" value="false">错</label>
-
-    <p>2. 古运河是泰州历史文化的重要见证，对吗？</p>
-    <label><input type="radio" name="q2" value="true">对</label>
-    <label><input type="radio" name="q2" value="false">错</label>
-
-    <br/>
-    <button onclick="checkQuiz()">提交答案</button>
-    <p id="quizResult"></p>
-  </div>
+    <!-- 成长值 -->
+    <div class="card">
+        <h2>我的成长值</h2>
+        <div class="progress">
+            <div id="progressBar" class="progress-bar">0 / 10</div>
+        </div>
+    </div>
 </section>
 
 <script>
-  // 配置
-  const CONFIG = { maxPointsPerCard: 10, gamePoints: 4, quizPoints: 3 };
-  let voiceOn = false;
-  let synth = window.speechSynthesis;
-  let points = 0;
-  let gameCount = 0;
-  let gameComplete = false;
+    // 配置
+    const CONFIG = { maxPoints: 10, gamePoints: 4, quizPoints: 3 };
+    let synth = window.speechSynthesis;
+    let points = 0;
+    let boatClicks = 0;
+    let gameCompleted = false;
+    let quizCompleted = false;
 
-  function changeFontSize(delta) {
-    let root = document.documentElement;
-    let current = parseFloat(getComputedStyle(root).fontSize);
-    root.style.fontSize = (current + delta) + 'px';
-  }
-  function toggleVoice(){
-    voiceOn = !voiceOn;
-    alert("语音功能已" + (voiceOn ? "开启" : "关闭"));
-  }
-  function readText(id) {
-    if(!voiceOn) return;
-    let text = document.getElementById(id).innerText;
-    let utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'zh-CN';
-    synth.speak(utter);
-  }
+    // SVG小船动画
+    let pos = 20;
+    setInterval(() => {
+        pos += 2;
+        document.getElementById('boat').setAttribute('cx', pos % window.innerWidth);
+    }, 50);
 
-  let pos = 0;
-  setInterval(()=>{
-    pos+=2;
-    document.getElementById("boat").setAttribute("cx", pos % window.innerWidth);
-  },50);
-
-  // 游戏逻辑
-  function clickBoat(){
-    if(gameComplete) return;
-    gameCount++;
-    document.getElementById("boat").setAttribute("fill", "blue");
-    document.getElementById("gameStatus").innerText = `当前已找到：${gameCount} / 3`;
-    if(gameCount >= 3){
-      gameComplete = true;
-      points += CONFIG.gamePoints;
-      if(points > CONFIG.maxPointsPerCard) points = CONFIG.maxPointsPerCard;
-      document.getElementById("gameStatus").innerText += ` ✅ 游戏完成！获得 ${CONFIG.gamePoints} 分。当前总分：${points}`;
+    // 点击小船
+    function clickBoat(){
+        if(gameCompleted) return;
+        boatClicks++;
+        document.getElementById('gameStatus').innerText = `已点击：${boatClicks} / 3`;
+        if(boatClicks >= 3){
+            gameCompleted = true;
+            addPoints(CONFIG.gamePoints);
+            document.getElementById('gameStatus').innerText += ` ✅ 完成游戏，+${CONFIG.gamePoints}分`;
+        }
     }
-  }
 
-  // 答题逻辑
-  function checkQuiz(){
-    let scoreThisQuiz = 0;
-    let q1 = document.querySelector('input[name="q1"]:checked');
-    let q2 = document.querySelector('input[name="q2"]:checked');
-    if(!q1 || !q2){ alert("请答完所有题目"); return;}
-    if(q1.value === "true") scoreThisQuiz += CONFIG.quizPoints;
-    if(q2.value === "true") scoreThisQuiz += CONFIG.quizPoints;
+    // 重置小游戏
+    function resetGame(){
+        boatClicks = 0;
+        gameCompleted = false;
+        document.getElementById('gameStatus').innerText = '任务：点击小船 3 次（只能加分一次）';
+    }
 
-    points += scoreThisQuiz;
-    if(points > CONFIG.maxPointsPerCard) points = CONFIG.maxPointsPerCard;
+    // 答题逻辑
+    function checkQuiz(){
+        if(quizCompleted) return;
+        let score = 0;
+        let q1 = document.querySelector('input[name="q1"]:checked');
+        let q2 = document.querySelector('input[name="q2"]:checked');
+        if(!q1 || !q2){ alert("请答完所有题目"); return; }
+        if(q1.value === 'true') score += CONFIG.quizPoints;
+        if(q2.value === 'true') score += CONFIG.quizPoints;
+        addPoints(score);
+        quizCompleted = true;
+        document.getElementById('quizResult').innerText = `答题得分 ${score} 分`;
+    }
 
-    document.getElementById("quizResult").innerHTML = `答题得分：${scoreThisQuiz} 分，当前总分：${points}`;
-  }
+    // 增加积分并更新进度
+    function addPoints(score){
+        points += score;
+        if(points > CONFIG.maxPoints) points = CONFIG.maxPoints;
+        let bar = document.getElementById('progressBar');
+        bar.style.width = (points / CONFIG.maxPoints * 100) + '%';
+        bar.innerText = `${points} / ${CONFIG.maxPoints}`;
+    }
+
+    // 语音朗读
+    function readText(id){
+        let text = document.getElementById(id).innerText;
+        let utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'zh-CN';
+        synth.speak(utter);
+    }
 </script>
 </body>
 </html>
