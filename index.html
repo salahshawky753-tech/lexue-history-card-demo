@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乐学成长卡 - 历史文化篇</title>
+<style>
+  :root {
+    --bg-color: #FDF6E3;
+    --text-color: #333;
+    --accent-color: #B58900;
+    --font-size: 16px;
+  }
+  body {
+    margin:0;
+    font-family: "Microsoft YaHei", sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: var(--font-size);
+  }
+  header {
+    background-image: url('https://images.unsplash.com/photo-1549887534-4c0b1d03f424?auto=format&fit=crop&w=1400&q=80'); /* 历史文化背景图 */
+    background-size: cover;
+    background-position:center;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+  section {
+    padding: 15px;
+    line-height: 1.6;
+  }
+  .controls { display: flex; gap:10px; margin-bottom:10px;}
+  button { padding: 6px 12px; font-size: 1em; cursor:pointer; }
+  .game, .quiz {margin-top:20px; padding:10px; border:1px solid #ccc; border-radius:8px;}
+  .quiz input {margin-right:5px;}
+  .highlight {color: var(--accent-color); font-weight: bold;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>乐学成长卡：历史文化篇</h1>
+  <p>小学中年级</p>
+</header>
+
+<section>
+  <div class="controls">
+    <button onclick="changeFontSize(1)">A+</button>
+    <button onclick="changeFontSize(-1)">A-</button>
+    <button onclick="toggleVoice()">🔊 语音</button>
+  </div>
+  
+  <h2>知识要点</h2>
+  
+  <div>
+    <p id="para1">【朗读1】泰州自古为水陆要冲，素有“汉唐名郡”之称。</p>
+    <button onclick="readText('para1')">朗读段落1</button>
+  </div>
+  <div>
+    <p id="para2">【朗读2】古运河穿城而过，见证了数百年的商贸繁荣与文化交流。</p>
+    <button onclick="readText('para2')">朗读段落2</button>
+  </div>
+
+  <h2>动画展示</h2>
+  <svg width="100%" height="120">
+    <circle id="boat" cx="0" cy="60" r="20" fill="#B58900"/>
+    抱歉，您的浏览器不支持SVG。
+  </svg>
+
+  <div class="game">
+    <h3>小游戏：找不同</h3>
+    <p>点击黄金圈，让它变成蓝色，找到3次不同即可得分！</p>
+    <button onclick="playGame()">开始游戏</button>
+    <p id="gameStatus"></p>
+  </div>
+
+  <div class="quiz">
+    <h3>知识问答</h3>
+    <p>1. 泰州有“汉唐名郡”之称，对吗？</p>
+    <label><input type="radio" name="q1" value="true">对</label>
+    <label><input type="radio" name="q1" value="false">错</label>
+    <br/>
+    <button onclick="checkQuiz()">提交答案</button>
+    <p id="quizResult"></p>
+  </div>
+</section>
+
+<script>
+  // 全局配置
+  const CONFIG = { maxPointsPerCard: 10 };
+  let voiceOn = false;
+  let synth = window.speechSynthesis;
+  let points = 0;
+  let gameCount = 0;
+
+  // 字号调节
+  function changeFontSize(delta) {
+    let root = document.documentElement;
+    let current = parseFloat(getComputedStyle(root).fontSize);
+    root.style.fontSize = (current + delta) + 'px';
+  }
+
+  // 语音朗读
+  function toggleVoice(){
+    voiceOn = !voiceOn;
+    alert("语音功能已" + (voiceOn ? "开启" : "关闭"));
+  }
+  function readText(id) {
+    if(!voiceOn) return;
+    let text = document.getElementById(id).innerText;
+    let utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'zh-CN';
+    synth.speak(utter);
+  }
+
+  // SVG动画
+  let pos = 0;
+  setInterval(()=>{
+    pos+=2;
+    document.getElementById("boat").setAttribute("cx", pos%window.innerWidth);
+  },50);
+
+  // 小游戏
+  function playGame(){
+    gameCount++;
+    document.getElementById("boat").setAttribute("fill", "blue");
+    points += 3;  
+    document.getElementById("gameStatus").innerText = "已完成一次找不同！当前积分：" + points;
+    console.log("[埋点]小游戏完成一次", gameCount);
+  }
+
+  // 答题
+  function checkQuiz(){
+    let answer = document.querySelector('input[name="q1"]:checked');
+    if(!answer){ alert("请选择答案"); return;}
+    if(answer.value === "true"){
+      document.getElementById("quizResult").innerHTML = "<span class='highlight'>回答正确！</span>";
+      points += 7;
+    } else {
+      document.getElementById("quizResult").innerHTML = "<span style='color:red'>回答错误，请再想想。</span>";
+    }
+    if(points > CONFIG.maxPointsPerCard) points = CONFIG.maxPointsPerCard;
+    console.log("[埋点]答题完成, 当前积分", points);
+  }
+</script>
+
+</body>
+</html>
